@@ -1,127 +1,257 @@
-<!-- Banner Image -->
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
-<p align="center">
-  <a href="https://expo.dev/">
-    <img alt="Expo logo" height="128" src="./.github/resources/banner.png">
-    <h1 align="center">Expo</h1>
-  </a>
-</p>
+void main() {
+  runApp(const MikrotikApp());
+}
 
-<p align="center">
-   <a aria-label="SDK version" href="https://www.npmjs.com/package/expo" target="_blank">
-    <img alt="Expo SDK version" src="https://img.shields.io/npm/v/expo.svg?style=flat-square&label=SDK&labelColor=000000&color=4630EB" />
-  </a>
-  <a aria-label="Chat or ask a question" href="https://chat.expo.dev" target="_blank">
-    <img alt="Chat or ask a question" src="https://img.shields.io/discord/695411232856997968.svg?style=flat-square&labelColor=000000&color=4630EB&logo=discord&logoColor=FFFFFF&label=Chat%20with%20us" />
-  </a>
-  <a aria-label="Expo is free to use" href="https://github.com/expo/expo/blob/main/LICENSE" target="_blank">
-    <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-success.svg?style=flat-square&color=33CC12" target="_blank" />
-  </a>
-  <a aria-label="expo downloads" href="http://www.npmtrends.com/expo" target="_blank">
-    <img alt="Downloads" src="https://img.shields.io/npm/dm/expo.svg?style=flat-square&labelColor=gray&color=33CC12&label=Downloads" />
-  </a>
-</p>
+class MikrotikApp extends StatelessWidget {
+  const MikrotikApp({super.key});
 
-<p align="center">
-  <a aria-label="try expo with snack" href="https://snack.expo.dev"><b>Try Expo in the Browser</b></a>
-&ensp;•&ensp;
-  <a aria-label="expo documentation" href="https://docs.expo.dev">Read the Documentation</a>
-&ensp;•&ensp;
-  <a aria-label="expo documentation" href="https://expo.dev/blog">Learn more on our blog</a>
-&ensp;•&ensp;
-  <a aria-label="expo documentation" href="https://expo.canny.io/feature-requests">Request a feature</a>
-</p>
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'مراقب الميكروتيك',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.emerald,
+        scaffoldBackgroundColor: const Color(0xFF0F172A),
+      ),
+      home: const DashboardScreen(),
+    );
+  }
+}
 
-<h6 align="center">Follow us on</h6>
-<p align="center">
-  <a aria-label="Follow @expo on X" href="https://x.com/intent/follow?screen_name=expo" target="_blank">
-    <img alt="Expo on X" src="https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white" target="_blank" />
-  </a>&nbsp;
-  <a aria-label="Follow @expo on GitHub" href="https://github.com/expo" target="_blank">
-    <img alt="Expo on GitHub" src="https://img.shields.io/badge/GitHub-222222?style=for-the-badge&logo=github&logoColor=white" target="_blank" />
-  </a>&nbsp;
-  <a aria-label="Follow @expo on Reddit" href="https://www.reddit.com/r/expo/" target="_blank">
-    <img alt="Expo on Reddit" src="https://img.shields.io/badge/Reddit-FF4500?style=for-the-badge&logo=reddit&logoColor=white" target="_blank" />
-  </a>&nbsp;
-  <a aria-label="Follow @expo on Bluesky" href="https://bsky.app/profile/expo.dev" target="_blank">
-    <img alt="Expo on Bluesky" src="https://img.shields.io/badge/Bluesky-1DA1F2?style=for-the-badge&logo=bluesky&logoColor=white" target="_blank" />
-  </a>&nbsp;
-  <a aria-label="Follow @expo on LinkedIn" href="https://www.linkedin.com/company/expo-dev" target="_blank">
-    <img alt="Expo on LinkedIn" src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" target="_blank" />
-  </a>
-</p>
+class ModemModel {
+  final String id;
+  final String name;
+  final LatLng location;
+  bool isOnline;
+  final String ip;
 
-## Introduction
+  ModemModel({
+    required this.id,
+    required this.name,
+    required this.location,
+    required this.isOnline,
+    required this.ip,
+  });
+}
 
-Expo is an open-source platform for making universal native apps that run on Android, iOS, and the web. It includes a universal runtime and libraries that let you build native apps by writing React and JavaScript.
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
 
-This repository includes the Expo SDK, Modules API, Go app, CLI, Router, documentation, and various other supporting tools. [Expo Application Services (EAS)](https://expo.dev/eas) is a platform of hosted services that are deeply integrated with Expo open source tools. EAS helps you build, ship, and iterate on your app as an individual or a team.
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
 
-Read the [Expo Community Guidelines](https://expo.dev/guidelines) before interacting in the repository. Thank you for helping keep the Expo community open and welcoming!
+class _DashboardScreenState extends State<DashboardScreen> {
+  int _currentIndex = 0;
+  final MapController _mapController = MapController();
 
-## Table of contents
+  // قائمة المودمات التجريبية
+  final List<ModemModel> _modems = [
+    ModemModel(id: 'MOD-101', name: 'مودم السوق المركزي', location: const LatLng(15.3694, 44.1910), isOnline: true, ip: '192.168.88.10'),
+    ModemModel(id: 'MOD-102', name: 'مودم الجولة الشمالية', location: const LatLng(15.3750, 44.1850), isOnline: true, ip: '192.168.88.11'),
+    ModemModel(id: 'MOD-103', name: 'مودم شارع الستين', location: const LatLng(15.3620, 44.1950), isOnline: false, ip: '192.168.88.12'),
+    ModemModel(id: 'MOD-104', name: 'مودم الحي الغربي', location: const LatLng(15.3580, 44.1800), isOnline: true, ip: '192.168.88.13'),
+  ];
 
-- [📚 Documentation](#-documentation)
-- [🗺 Project Layout](#-project-layout)
-- [🏅 Badges](#-badges)
-- [👏 Contributing](#-contributing)
-- [❓ FAQ](#-faq)
-- [💙 The Team](#-the-team)
-- [License](#license)
+  void _flyToModem(LatLng location) {
+    setState(() {
+      _currentIndex = 0; // الانتقال لتبويب الخريطة
+    });
+    _mapController.move(location, 16.0);
+  }
 
-## 📚 Documentation
+  void _toggleSimulation() {
+    setState(() {
+      // عكس حالة المودم رقم 103 للاختبار
+      var modem = _modems.firstWhere((m) => m.id == 'MOD-103');
+      modem.isOnline = !modem.isOnline;
+    });
+  }
 
-<p>Learn about building and deploying universal apps <a aria-label="expo documentation" href="https://docs.expo.dev">in our official docs</a>!</p>
+  @override
+  Widget build(BuildContext context) {
+    int offlineCount = _modems.where((m) => !m.isOnline).length;
+    int onlineCount = _modems.where((m) => m.isOnline).length;
 
-- [Getting Started](https://docs.expo.dev/)
-- [API Reference](https://docs.expo.dev/versions/latest/)
-- [Using Custom Native Modules](https://docs.expo.dev/workflow/customizing/)
+    final List<Widget> screens = [
+      // تبويب الخريطة
+      Stack(
+        children: [
+          FlutterMap(
+            mapController: _mapController,
+            options: const MapOptions(
+              initialCenter: LatLng(15.3694, 44.1910),
+              initialZoom: 13.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.mikrotik_monitor',
+              ),
+              MarkerLayer(
+                markers: _modems.map((modem) {
+                  return Marker(
+                    point: modem.location,
+                    width: 40,
+                    height: 40,
+                    child: GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: const Color(0xFF1E293B),
+                          builder: (context) => Container(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(modem.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 8),
+                                Text('رقم المودم: ${modem.id}'),
+                                Text('عنوان الـ IP: ${modem.ip}'),
+                                Text('الحالة: ${modem.isOnline ? "متصل" : "منقطع"}', 
+                                  style: TextStyle(color: modem.isOnline ? Colors.green : Colors.red, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: modem.isOnline ? Colors.green : Colors.red,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: (modem.isOnline ? Colors.green : Colors.red).withOpacity(0.6),
+                              blurRadius: 8,
+                              spreadRadius: 2,
+                            )
+                          ],
+                        ),
+                        child: Icon(
+                          modem.isOnline ? Icons.router : Icons.error_outline,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+          // زر محاكاة الانقطاع
+          Positioned(
+            top: 16,
+            right: 16,
+            child: FloatingActionButton.extended(
+              onPressed: _toggleSimulation,
+              backgroundColor: Colors.amber[800],
+              icon: const Icon(Icons.bolt, color: Colors.white),
+              label: const Text('محاكاة انقطاع مودم', style: TextStyle(color: Colors.white)),
+            ),
+          )
+        ],
+      ),
 
-## 🗺 Project Layout
+      // تبويب قائمة الأجهزة المنقطعة
+      ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const Text('التنبيهات والأجهزة المنقطعة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          if (offlineCount == 0)
+            const Center(child: Padding(padding: EdgeInsets.all(40), child: Text('جميع المودمات متصلة بشكل سليم 👍', style: TextStyle(color: Colors.green))))
+          else
+            ..._modems.where((m) => !m.isOnline).map((modem) {
+              return Card(
+                color: Colors.red.withOpacity(0.15),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Colors.red, width: 1)),
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  leading: const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 36),
+                  title: Text(modem.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text('الرقم: ${modem.id} | IP: ${modem.ip}'),
+                  trailing: ElevatedButton(
+                    onPressed: () => _flyToModem(modem.location),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    child: const Text('تحديد الموقع 📍', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              );
+            }),
+        ],
+      ),
 
-- [`packages`](/packages) All the source code for Expo modules, if you want to edit a library or just see how it works this is where you'll find it.
-- [`apps`](/apps) This is where you can find Expo projects which are linked to the development modules. You'll do most of your testing in here.
-- [`apps/expo-go`](/apps/expo-go) This is where you can find the source code for Expo Go.
-- [`apps/expo-go/ios/Exponent.xcworkspace`](/apps/expo-go/ios) is the Xcode workspace. When developing iOS, always open this instead of `Exponent.xcodeproj` because the workspace also loads the CocoaPods dependencies.
-- [`docs`](/docs) The source code for **https://docs.expo.dev**
-- [`templates`](/templates) The template projects you get when you run `npx create-expo-app`
-- [`react-native-lab`](/react-native-lab) This is our fork of `react-native` used to build Expo Go.
-- [`guides`](/guides) In-depth tutorials for advanced topics like contributing to the client.
-- [`tools`](/tools) contain build and configuration tools.
-- [`template-files`](/template-files) contains templates for files that require private keys. They are populated using the keys in `template-files/keys.json`.
-- [`template-files/ios/dependencies.json`](/template-files/ios/dependencies.json) specifies the CocoaPods dependencies of the app.
+      // تبويب إحصائيات النظام
+      Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('معلومات الشبكة والحماية', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            _buildStatCard('إجمالي المودمات', '${_modems.length}', Icons.devices, Colors.blue),
+            _buildStatCard('المودمات المتصلة', '$onlineCount', Icons.check_circle, Colors.green),
+            _buildStatCard('المودمات المنقطعة', '$offlineCount', Icons.cancel, Colors.red),
+            _buildStatCard('حالة التشفير والربط', 'آمن (HTTPS / API)', Icons.security, Colors.emerald),
+          ],
+        ),
+      ),
+    ];
 
-## 🏅 Badges
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('مراقب شبكة الميكروتيك'),
+          backgroundColor: const Color(0xFF1E293B),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: Badge(
+                  label: Text('$offlineCount'),
+                  backgroundColor: Colors.red,
+                  child: const Icon(Icons.notifications),
+                ),
+              ),
+            )
+          ],
+        ),
+        body: screens[_currentIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          backgroundColor: const Color(0xFF1E293B),
+          selectedItemColor: Colors.emeraldAccent,
+          unselectedItemColor: Colors.grey,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.map), label: 'الخريطة الحية'),
+            BottomNavigationBarItem(icon: Icon(Icons.warning), label: 'التنبيهات والمنقطعة'),
+            BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'الإحصائيات'),
+          ],
+        ),
+      ),
+    );
+  }
 
-Let everyone know your app can be run instantly in the _Expo Go_ app!
-<br/>
-
-[![runs with Expo Go](https://img.shields.io/badge/Runs%20with%20Expo%20Go-000.svg?style=flat-square&logo=EXPO&labelColor=f3f3f3&logoColor=000)](https://expo.dev/client)
-
-[![runs with Expo Go](https://img.shields.io/badge/Runs%20with%20Expo%20Go-4630EB.svg?style=flat-square&logo=EXPO&labelColor=f3f3f3&logoColor=000)](https://expo.dev/client)
-
-```md
-[![runs with Expo Go](https://img.shields.io/badge/Runs%20with%20Expo%20Go-000.svg?style=flat-square&logo=EXPO&labelColor=f3f3f3&logoColor=000)](https://expo.dev/client)
-
-[![runs with Expo Go](https://img.shields.io/badge/Runs%20with%20Expo%20Go-4630EB.svg?style=flat-square&logo=EXPO&labelColor=f3f3f3&logoColor=000)](https://expo.dev/client)
-```
-
-## 👏 Contributing
-
-If you like Expo and want to help make it better then check out our [contributing guide](/CONTRIBUTING.md)! Check out the [CLI package](https://github.com/expo/expo/tree/main/packages/%40expo/cli) to work on the Expo CLI.
-
-## ❓ FAQ
-
-If you have questions about Expo and want answers, then check out our [Frequently Asked Questions](https://docs.expo.dev/faq/)!
-
-If you still have questions you can ask them on our [Discord and Forums](https://chat.expo.dev) or X [@expo](https://x.com/expo).
-
-## 💙 The Team
-
-Curious about who makes Expo? Here are our [team members](https://expo.dev/about)!
-
-## License
-
-The Expo source code is made available under the [MIT license](LICENSE). Some of the dependencies are licensed differently, with the BSD license, for example.
-
-<img alt="Star the Expo repo on GitHub to support the project" src="https://user-images.githubusercontent.com/9664363/185428788-d762fd5d-97b3-4f59-8db7-f72405be9677.gif" width="50%">
+  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+    return Card(
+      color: const Color(0xFF1E293B),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        leading: Icon(icon, color: color, size: 30),
+        title: Text(title, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+        trailing: Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color)),
+      ),
+    );
+  }
+}
