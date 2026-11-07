@@ -1,0 +1,31 @@
+# Update with `node apps/prod-bundle-packages.mts`. Export app is `minimal-tester`; repoint APP_DIR in that script if the app moves.
+# @generated SignedSource<<145d8433eb6b1ab850ce3be7f9d5673e>>
+@expo/cli
+@react-native/asset-utils
+@react-native/js-polyfills
+@react-native/normalize-colors
+@react-native/virtualized-lists
+@ungap/structured-clone
+base64-js
+expo
+expo-apple-authentication
+expo-asset
+expo-blur
+expo-camera
+expo-constants
+expo-image
+expo-linear-gradient
+expo-modules-core
+expo-video
+flow-enums-runtime
+invariant
+memoize-one
+nullthrows
+promise
+react
+react-native
+regenerator-runtime
+scheduler
+stacktrace-parser
+whatwg-fetch
+whatwg-url-minimum
